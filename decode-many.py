@@ -6,11 +6,15 @@ import binhex
 import uu
 import sys
 import io
+import string
 
-if len(sys.argv) == 1:
-    in_string = sys.stdin.read()
-else:
-    in_string = open(sys.argv[1]).read()
+def wrap_file_func(file_func):
+    def local_func(in_string):
+        in_file = io.StringIO(in_string)
+        out_file = io.StringIO()
+        file_func(in_file, out_file)
+        return out_file.read()
+    return local_func
 
 decode_string_funcs = {
     'Base64' : base64.standard_b64decode,
@@ -18,44 +22,35 @@ decode_string_funcs = {
     'Base16': base64.b16decode,
     'Ascii85' : base64.a85decode,
     'Base85' : base64.b85decode,
+    'Uuencoding' : wrap_file_func(uu.decode),
+    'BinHex': wrap_file_func(binhex.hexbin),
 }
 
-for func_name, func in decode_string_funcs.items():
-    decoded = None
-    try:
-        decoded = func(in_string)
-    except binascii.Error:
-        print(func_name, 'failed.')
-        pass
+def decode_many(unknown_string):
+    for func_name, func in decode_string_funcs.items():
+        decoded = None
+        try:
+            decoded = func(unknown_string)
+        except binascii.Error:
+            print(func_name, 'failed.')
+            pass
+        except binhex.Error:
+            print(func_name, 'failed.')
+            pass
 
-    if decoded:
-        print(func_name, ':' , decoded)
+        if decoded:
+            print(func_name, ':' , decoded)
 
-print(in_string, type(in_string))
-if in_string.startswith('blah'):
-    print 'hi'
-in_file = io.StringIO(in_string)
-out_file = io.StringIO()
-uu.decode(in_file, out_file, mode='w')
+def self_test():
+    test_bytes = string.printable.encode('utf8')
+    base64_bytes = base64.standard_b64encode(test_bytes)
+    decode_many(base64_bytes)
 
-# /usr/lib/python3.4/uu.py
+if len(sys.argv) > 1:
+    if sys.argv[1] == '-':
+        decode_many(sys.stdin.read())
+    else:
+        decode_many(sys.argv[1].read())
+else:
+    self_test()
 
-decode_file_funcs = {
-    'Uuencoding' : uu.decode,
-    'BinHex': binhex.hexbin,
-}
-
-for func_name, func in decode_file_funcs.items():
-    decoded = None
-    in_file = io.StringIO(in_string)
-    out_file = io.StringIO()
-
-    try:
-        func(in_file, out_file)
-        decoded = out_file.read()
-    except binhex.Error:
-        print(func_name, 'failed.')
-        pass
-
-    if decoded:
-        print(func_name, ':', decoded)

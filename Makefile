@@ -1,2 +1,2 @@
 all:
-	echo -n 'TWFu' | ./decode-many.py
+	python3 decode-many.py
