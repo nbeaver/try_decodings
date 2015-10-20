@@ -74,15 +74,20 @@ def decode_many(unknown_string):
             print(func_name, ':' , decoded)
 
 def self_test():
-    test_bytes = string.printable.encode('ascii')
-    base64_bytes = base64.standard_b64encode(test_bytes)
-    decode_many(base64_bytes)
+    test_string = string.printable
+    test_bytes = test_string.encode('utf8')
+    print("Encoding and decoding this string: "+repr(test_string))
+    for name, func in encode_string_funcs.items():
+        print("======== " + name + " ========")
+        encoded_bytes = func(test_bytes)
+        decode_many(encoded_bytes)
 
 if len(sys.argv) > 1:
     if sys.argv[1] == '-':
-        decode_many(sys.stdin.read())
+        # Use default encoding.
+        decode_many(sys.stdin.read().encode())
     else:
-        decode_many(sys.argv[1].read())
+        decode_many(open(sys.argv[1], 'rb').read())
 else:
     self_test()
 
