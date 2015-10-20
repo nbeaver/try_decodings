@@ -3,11 +3,9 @@
 import binascii
 import base64
 import binhex
-import tempfile # for binhex
 import uu
 import io # for uuencode
 import sys
-import string # for unit tests
 import codecs # for ROT13
 
 def wrap_uu(func):
@@ -104,6 +102,7 @@ def decode_and_print(unknown_bytes):
             print(name, ':' , decoded)
 
 def self_test():
+    import string
     test_string = string.printable
     test_bytes = test_string.encode()
     print("Encoding and decoding this string: "+repr(test_string))
@@ -120,5 +119,5 @@ if len(sys.argv) > 1:
         decode_and_print(sys.stdin.read().encode())
     else:
         decode_and_print(open(sys.argv[1], 'rb').read())
-else:
+elif __name__ == "__main__":
     self_test()
