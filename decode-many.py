@@ -8,6 +8,7 @@ import uu
 import io # for uuencode
 import sys
 import string # for unit tests
+import codecs # for ROT13
 
 def wrap_uu(func):
     """
@@ -44,6 +45,17 @@ def wrap_binhex(func):
 
     return new_func
 
+def wrap_rot13(func):
+    # We can't use functools.partial
+    # because codecs.encode takes no keyword arguments.
+    def new_func(in_bytes):
+        # I'm not sure this is correct,
+        # but 'rot-13' is str-to-str only.
+        in_str = in_bytes.decode()
+        out_str = func(in_str, 'rot-13')
+        return out_str.encode()
+    return new_func
+
 decode_string_funcs = {
     'Base64' : base64.standard_b64decode,
     'Base32' : base64.b32decode,
@@ -52,6 +64,7 @@ decode_string_funcs = {
     'Base85' : base64.b85decode,
     'Uuencoding' : wrap_uu(uu.decode),
     'BinHex' : wrap_binhex(binhex.hexbin),
+    'ROT13' : wrap_rot13(codecs.decode),
 }
 # TODO: make this an OrderedDict?
 
@@ -63,6 +76,7 @@ encode_string_funcs = {
     'Base85' : base64.b85encode,
     'Uuencoding' : wrap_uu(uu.encode),
     'BinHex' : wrap_binhex(binhex.binhex),
+    'ROT13' : wrap_rot13(codecs.encode),
 }
 
 def decode_bytes(unknown_bytes, func, encoding):
