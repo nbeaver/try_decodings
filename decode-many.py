@@ -75,7 +75,7 @@ def decode_many(unknown_string):
 
 def self_test():
     test_string = string.printable
-    test_bytes = test_string.encode('utf8')
+    test_bytes = test_string.encode()
     print("Encoding and decoding this string: "+repr(test_string))
     for name, func in encode_string_funcs.items():
         print("======== " + name + " ========")
