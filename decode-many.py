@@ -3,11 +3,11 @@
 import binascii
 import base64
 import binhex
+import tempfile # for binhex
 import uu
+import io # for uuencode
 import sys
-import io
-import string
-import tempfile
+import string # for unit tests
 
 def wrap_uu(func):
     """
@@ -27,37 +27,42 @@ def wrap_uu(func):
 def wrap_binhex(func):
     """
     Convert a function
-        f(infilename, outfilename)
+        f(in_filename, out_filename)
     to
         out_bytes = f(in_bytes)
     """
     def new_func(in_bytes):
-        in_file = tempfile.NamedTemporaryFile()
-        in_file.write(in_bytes)
-        out_file = tempfile.NamedTemporaryFile()
-        func(in_file.name, out_file.name)
-        return open(out_file.name, 'rb').read()
+        in_filename = 'binhex.in'
+        with open(in_filename, 'wb') as in_file:
+            in_file.write(in_bytes)
+        out_filename = 'binhex.out'
+        # We can't use tempfiles because hexbin() calls close().
+        func(in_filename, out_filename)
+        with open(out_filename, 'rb') as out_file:
+            out_bytes = out_file.read()
+        return out_bytes
+
     return new_func
 
 decode_string_funcs = {
     'Base64' : base64.standard_b64decode,
-    'Base32': base64.b32decode,
-    'Base16': base64.b16decode,
+    'Base32' : base64.b32decode,
+    'Base16' : base64.b16decode,
     'Ascii85' : base64.a85decode,
     'Base85' : base64.b85decode,
     'Uuencoding' : wrap_uu(uu.decode),
-    'BinHex': wrap_binhex(binhex.hexbin),
+    'BinHex' : wrap_binhex(binhex.hexbin),
 }
 # TODO: make this an OrderedDict?
 
 encode_string_funcs = {
-    #'Base64' : base64.standard_b64encode,
-    #'Base32': base64.b32encode,
-    #'Base16': base64.b16encode,
-    #'Ascii85' : base64.a85encode,
-    #'Base85' : base64.b85encode,
-    #'Uuencoding' : wrap_uu(uu.encode),
-    'BinHex': wrap_binhex(binhex.binhex),
+    'Base64' : base64.standard_b64encode,
+    'Base32' : base64.b32encode,
+    'Base16' : base64.b16encode,
+    'Ascii85' : base64.a85encode,
+    'Base85' : base64.b85encode,
+    'Uuencoding' : wrap_uu(uu.encode),
+    'BinHex' : wrap_binhex(binhex.binhex),
 }
 
 def decode_bytes(unknown_bytes, func, encoding):
@@ -67,9 +72,9 @@ def decode_bytes(unknown_bytes, func, encoding):
     except binascii.Error:
         print(encoding, 'failed.')
         pass
-    #except binhex.Error:
-    #    print(encoding, 'failed.')
-    #    pass
+    except binhex.Error:
+        print(encoding, 'failed.')
+        pass
     except uu.Error:
         print(encoding, 'failed.')
         pass
