@@ -8,19 +8,29 @@ import sys
 import io
 import string
 
-def wrap_file_func(file_func):
+def wrap_uu(func):
     """
-    Convert a function like
-    f(in, out)
+    Convert a function
+        f(in_file, out_file)
     to
-    out = f(in)
+        out_bytes = f(in_string)
     """
-    def local_func(in_bytes):
-        in_file = io.BytesIO(in_bytes)
+    def new_func(in_string):
+        in_file = io.BytesIO(bytes(in_string))
         out_file = io.BytesIO()
-        file_func(in_file, out_file)
+        func(in_file, out_file)
+        out_file.seek(0)
         return out_file.read()
-    return local_func
+    return new_func
+
+def wrap_binhex(func):
+    """
+    Convert a function
+        f(infilename, outfilename)
+    to
+        out_bytes = f(in_bytes)
+    """
+    raise NotImplementedError
 
 decode_string_funcs = {
     'Base64' : base64.standard_b64decode,
@@ -28,8 +38,18 @@ decode_string_funcs = {
     'Base16': base64.b16decode,
     'Ascii85' : base64.a85decode,
     'Base85' : base64.b85decode,
-    'Uuencoding' : wrap_file_func(uu.decode),
-    'BinHex': wrap_file_func(binhex.hexbin),
+    'Uuencoding' : wrap_uu(uu.decode),
+    #'BinHex': wrap_binhex(binhex.hexbin),
+}
+
+encode_string_funcs = {
+    'Base64' : base64.standard_b64encode,
+    'Base32': base64.b32encode,
+    'Base16': base64.b16encode,
+    'Ascii85' : base64.a85encode,
+    'Base85' : base64.b85encode,
+    'Uuencoding' : wrap_uu(uu.encode),
+    #'BinHex': wrap_binhex(binhex.binhex),
 }
 
 def decode_many(unknown_string):
