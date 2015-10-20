@@ -43,12 +43,18 @@ def decode_many(unknown_string):
         except binhex.Error:
             print(func_name, 'failed.')
             pass
+        except ValueError:
+            print(func_name, 'failed.')
+            pass
+        except uu.Error:
+            print(func_name, 'failed.')
+            pass
 
         if decoded:
             print(func_name, ':' , decoded)
 
 def self_test():
-    test_bytes = string.printable.encode('utf8')
+    test_bytes = string.printable.encode('ascii')
     base64_bytes = base64.standard_b64encode(test_bytes)
     decode_many(base64_bytes)
 
