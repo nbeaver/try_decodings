@@ -7,6 +7,7 @@ import uu
 import sys
 import io
 import string
+import tempfile
 
 def wrap_uu(func):
     """
@@ -30,6 +31,13 @@ def wrap_binhex(func):
     to
         out_bytes = f(in_bytes)
     """
+    def new_func(in_string):
+        in_file = tempfile.NamedTemporaryFile()
+        in_file.write(bytes(in_string))
+        out_file = io.BytesIO()
+        func(in_file, out_file)
+        out_file.seek(0)
+        return out_file.read()
     raise NotImplementedError
 
 decode_string_funcs = {
