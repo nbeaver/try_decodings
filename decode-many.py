@@ -52,42 +52,47 @@ encode_string_funcs = {
     #'BinHex': wrap_binhex(binhex.binhex),
 }
 
-def decode_many(unknown_string):
-    for func_name, func in decode_string_funcs.items():
-        decoded = None
+def decode_bytes(unknown_bytes, func, encoding):
+        decoded_bytes = None
         try:
-            decoded = func(unknown_string)
+            decoded_bytes = func(unknown_bytes)
         except binascii.Error:
-            print(func_name, 'failed.')
+            print(encoding, 'failed.')
             pass
         except binhex.Error:
-            print(func_name, 'failed.')
+            print(encoding, 'failed.')
             pass
         except uu.Error:
-            print(func_name, 'failed.')
+            print(encoding, 'failed.')
             pass
         except ValueError:
-            print(func_name, 'failed with ValueError.')
+            print(encoding, 'failed with ValueError.')
             pass
+        return decoded_bytes
 
+def decode_and_print(unknown_bytes):
+    for name, func in decode_string_funcs.items():
+        decoded = decode_bytes(unknown_bytes, func, name)
         if decoded:
-            print(func_name, ':' , decoded)
+            print(name, ':' , decoded)
 
 def self_test():
     test_string = string.printable
     test_bytes = test_string.encode()
     print("Encoding and decoding this string: "+repr(test_string))
-    for name, func in encode_string_funcs.items():
-        print("======== " + name + " ========")
+    for encoding, func in encode_string_funcs.items():
+        print("======== " + encoding + " ========")
         encoded_bytes = func(test_bytes)
-        decode_many(encoded_bytes)
+        decode_and_print(encoded_bytes)
+        assert(decode_bytes(encoded_bytes, decode_string_funcs[encoding], encoding) == test_bytes) 
+
+        # TODO: assert decoded_bytes == test_bytes
 
 if len(sys.argv) > 1:
     if sys.argv[1] == '-':
         # Use default encoding.
-        decode_many(sys.stdin.read().encode())
+        decode_and_print(sys.stdin.read().encode())
     else:
-        decode_many(open(sys.argv[1], 'rb').read())
+        decode_and_print(open(sys.argv[1], 'rb').read())
 else:
     self_test()
-
