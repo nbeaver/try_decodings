@@ -15,8 +15,8 @@ def wrap_uu(func):
     to
         out_bytes = f(in_string)
     """
-    def new_func(in_string):
-        in_file = io.BytesIO(bytes(in_string))
+    def new_func(in_bytes):
+        in_file = io.BytesIO(in_bytes)
         out_file = io.BytesIO()
         func(in_file, out_file)
         out_file.seek(0)
