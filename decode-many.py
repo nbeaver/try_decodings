@@ -9,9 +9,15 @@ import io
 import string
 
 def wrap_file_func(file_func):
-    def local_func(in_string):
-        in_file = io.StringIO(in_string)
-        out_file = io.StringIO()
+    """
+    Convert a function like
+    f(in, out)
+    to
+    out = f(in)
+    """
+    def local_func(in_bytes):
+        in_file = io.BytesIO(in_bytes)
+        out_file = io.BytesIO()
         file_func(in_file, out_file)
         return out_file.read()
     return local_func
