@@ -110,6 +110,7 @@ def self_test():
     for encoding, func in encode_string_funcs.items():
         print("======== " + encoding + " ========")
         encoded_bytes = func(test_bytes)
+        print(encoded_bytes)
         decode_and_print(encoded_bytes)
         assert(decode_bytes(encoded_bytes, decode_string_funcs[encoding], encoding) == test_bytes)
 
