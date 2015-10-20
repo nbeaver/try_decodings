@@ -41,6 +41,7 @@ decode_string_funcs = {
     'Uuencoding' : wrap_uu(uu.decode),
     #'BinHex': wrap_binhex(binhex.hexbin),
 }
+# TODO: make this an OrderedDict?
 
 encode_string_funcs = {
     'Base64' : base64.standard_b64encode,
@@ -84,7 +85,7 @@ def self_test():
         print("======== " + encoding + " ========")
         encoded_bytes = func(test_bytes)
         decode_and_print(encoded_bytes)
-        assert(decode_bytes(encoded_bytes, decode_string_funcs[encoding], encoding) == test_bytes) 
+        assert(decode_bytes(encoded_bytes, decode_string_funcs[encoding], encoding) == test_bytes)
 
         # TODO: assert decoded_bytes == test_bytes
 
