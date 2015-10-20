@@ -63,11 +63,11 @@ def decode_many(unknown_string):
         except binhex.Error:
             print(func_name, 'failed.')
             pass
-        except ValueError:
-            print(func_name, 'failed.')
-            pass
         except uu.Error:
             print(func_name, 'failed.')
+            pass
+        except ValueError:
+            print(func_name, 'failed with ValueError.')
             pass
 
         if decoded:
