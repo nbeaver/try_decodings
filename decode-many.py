@@ -31,14 +31,13 @@ def wrap_binhex(func):
     to
         out_bytes = f(in_bytes)
     """
-    def new_func(in_string):
+    def new_func(in_bytes):
         in_file = tempfile.NamedTemporaryFile()
-        in_file.write(bytes(in_string))
-        out_file = io.BytesIO()
-        func(in_file, out_file)
-        out_file.seek(0)
-        return out_file.read()
-    raise NotImplementedError
+        in_file.write(in_bytes)
+        out_file = tempfile.NamedTemporaryFile()
+        func(in_file.name, out_file.name)
+        return open(out_file.name, 'rb').read()
+    return new_func
 
 decode_string_funcs = {
     'Base64' : base64.standard_b64decode,
@@ -47,37 +46,37 @@ decode_string_funcs = {
     'Ascii85' : base64.a85decode,
     'Base85' : base64.b85decode,
     'Uuencoding' : wrap_uu(uu.decode),
-    #'BinHex': wrap_binhex(binhex.hexbin),
+    'BinHex': wrap_binhex(binhex.hexbin),
 }
 # TODO: make this an OrderedDict?
 
 encode_string_funcs = {
-    'Base64' : base64.standard_b64encode,
-    'Base32': base64.b32encode,
-    'Base16': base64.b16encode,
-    'Ascii85' : base64.a85encode,
-    'Base85' : base64.b85encode,
-    'Uuencoding' : wrap_uu(uu.encode),
-    #'BinHex': wrap_binhex(binhex.binhex),
+    #'Base64' : base64.standard_b64encode,
+    #'Base32': base64.b32encode,
+    #'Base16': base64.b16encode,
+    #'Ascii85' : base64.a85encode,
+    #'Base85' : base64.b85encode,
+    #'Uuencoding' : wrap_uu(uu.encode),
+    'BinHex': wrap_binhex(binhex.binhex),
 }
 
 def decode_bytes(unknown_bytes, func, encoding):
-        decoded_bytes = None
-        try:
-            decoded_bytes = func(unknown_bytes)
-        except binascii.Error:
-            print(encoding, 'failed.')
-            pass
-        except binhex.Error:
-            print(encoding, 'failed.')
-            pass
-        except uu.Error:
-            print(encoding, 'failed.')
-            pass
-        except ValueError:
-            print(encoding, 'failed with ValueError.')
-            pass
-        return decoded_bytes
+    decoded_bytes = None
+    try:
+        decoded_bytes = func(unknown_bytes)
+    except binascii.Error:
+        print(encoding, 'failed.')
+        pass
+    #except binhex.Error:
+    #    print(encoding, 'failed.')
+    #    pass
+    except uu.Error:
+        print(encoding, 'failed.')
+        pass
+    except ValueError:
+        print(encoding, 'failed with ValueError.')
+        pass
+    return decoded_bytes
 
 def decode_and_print(unknown_bytes):
     for name, func in decode_string_funcs.items():
@@ -94,8 +93,6 @@ def self_test():
         encoded_bytes = func(test_bytes)
         decode_and_print(encoded_bytes)
         assert(decode_bytes(encoded_bytes, decode_string_funcs[encoding], encoding) == test_bytes)
-
-        # TODO: assert decoded_bytes == test_bytes
 
 if len(sys.argv) > 1:
     if sys.argv[1] == '-':
