@@ -1,2 +1,2 @@
 all:
-	python3 decode_many.py
+	python3 try_decodings.py
