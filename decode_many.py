@@ -84,6 +84,7 @@ encode_string_funcs = {
 }
 
 def decode_bytes(unknown_bytes, func, encoding):
+    assert isinstance(unknown_bytes, bytes), "{0} is type {1} not an instance of 'bytes' in encoding {2}".format(repr(unknown_bytes), type(unknown_bytes), encoding)
     decoded_bytes = None
     try:
         decoded_bytes = func(unknown_bytes)
@@ -117,7 +118,7 @@ def self_test():
         encoded_bytes = func(test_bytes)
         print(encoded_bytes)
         decode_and_print(encoded_bytes)
-        assert(decode_bytes(encoded_bytes, decode_string_funcs[encoding], encoding) == test_bytes)
+        assert decode_bytes(encoded_bytes, decode_string_funcs[encoding], encoding) == test_bytes, 'Round-tripping printable ASCII characters failed.'
 
 if len(sys.argv) > 1:
     if sys.argv[1] == '-':
