@@ -115,9 +115,14 @@ def decode_bytes(unknown_bytes, func, encoding):
 
 def decode_and_print(unknown_bytes):
     for name, func in decode_string_funcs.items():
-        decoded = decode_bytes(unknown_bytes, func, name)
-        if decoded:
-            print(name, ':' , decoded)
+        decoded_bytes = decode_bytes(unknown_bytes, func, name)
+        if decoded_bytes:
+            print(name, ': ', end="")
+            try:
+                unicode_str = decoded_bytes.decode()
+                print(unicode_str)
+            except UnicodeDecodeError:
+                print(decoded_bytes)
 
 def self_test():
     import string
