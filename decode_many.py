@@ -8,6 +8,7 @@ import io # for uuencode
 import sys
 import codecs # for ROT13
 import urllib.parse # for percent-encoding.
+import quopri
 
 def wrap_uu(func):
     """
@@ -68,6 +69,7 @@ decode_string_funcs = {
     'BinHex' : wrap_binhex(binhex.hexbin),
     'ROT13' : wrap_rot13(codecs.decode),
     'Percent-encoding' : urllib.parse.unquote_to_bytes,
+    'MIME quoted-printable' : quopri.decodestring,
 }
 # TODO: make this an OrderedDict?
 
@@ -81,6 +83,7 @@ encode_string_funcs = {
     'BinHex' : wrap_binhex(binhex.binhex),
     'ROT13' : wrap_rot13(codecs.encode),
     'Percent-encoding' : wrap_percent_encode,
+    'MIME quoted-printable' : quopri.encodestring,
 }
 
 def decode_bytes(unknown_bytes, func, encoding):
