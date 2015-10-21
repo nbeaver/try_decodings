@@ -9,6 +9,7 @@ import sys
 import codecs # for ROT13
 import urllib.parse # for percent-encoding.
 import quopri
+import html
 
 def wrap_uu(func):
     """
@@ -56,6 +57,13 @@ def wrap_rot13(func):
         return out_str.encode()
     return new_func
 
+def wrap_html(func):
+    def new_func(in_bytes):
+        in_str = in_bytes.decode()
+        out_str = func(in_str)
+        return out_str.encode()
+    return new_func
+
 def wrap_percent_encode(in_string):
     return urllib.parse.quote_from_bytes(in_string).encode()
 
@@ -70,6 +78,7 @@ decode_string_funcs = {
     'ROT13' : wrap_rot13(codecs.decode),
     'Percent-encoding' : urllib.parse.unquote_to_bytes,
     'MIME quoted-printable' : quopri.decodestring,
+    'HTML' : wrap_html(html.unescape),
 }
 # TODO: make this an OrderedDict?
 
@@ -84,6 +93,7 @@ encode_string_funcs = {
     'ROT13' : wrap_rot13(codecs.encode),
     'Percent-encoding' : wrap_percent_encode,
     'MIME quoted-printable' : quopri.encodestring,
+    'HTML' : wrap_html(html.escape),
 }
 
 def decode_bytes(unknown_bytes, func, encoding):
