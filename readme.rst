@@ -1,3 +1,6 @@
+This tries some common binary-to-ascii encodings
+and a few ascii-to-ascii encodings.
+
 Use it like this on a file::
 
     python3 try_decodings.py temp.txt
