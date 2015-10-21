@@ -7,6 +7,7 @@ import uu
 import io # for uuencode
 import sys
 import codecs # for ROT13
+import urllib.parse # for percent-encoding.
 
 def wrap_uu(func):
     """
@@ -54,6 +55,9 @@ def wrap_rot13(func):
         return out_str.encode()
     return new_func
 
+def wrap_percent_encode(in_string):
+    return urllib.parse.quote_from_bytes(in_string).encode()
+
 decode_string_funcs = {
     'Base64' : base64.standard_b64decode,
     'Base32' : base64.b32decode,
@@ -63,6 +67,7 @@ decode_string_funcs = {
     'Uuencoding' : wrap_uu(uu.decode),
     'BinHex' : wrap_binhex(binhex.hexbin),
     'ROT13' : wrap_rot13(codecs.decode),
+    'Percent-encoding' : urllib.parse.unquote_to_bytes,
 }
 # TODO: make this an OrderedDict?
 
@@ -75,6 +80,7 @@ encode_string_funcs = {
     'Uuencoding' : wrap_uu(uu.encode),
     'BinHex' : wrap_binhex(binhex.binhex),
     'ROT13' : wrap_rot13(codecs.encode),
+    'Percent-encoding' : wrap_percent_encode,
 }
 
 def decode_bytes(unknown_bytes, func, encoding):
