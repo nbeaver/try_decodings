@@ -10,6 +10,7 @@ import codecs # for ROT13
 import urllib.parse # for percent-encoding.
 import quopri
 import html
+import collections
 
 def wrap_uu(func):
     """
@@ -67,34 +68,31 @@ def wrap_html(func):
 def wrap_percent_encode(in_string):
     return urllib.parse.quote_from_bytes(in_string).encode()
 
-decode_string_funcs = {
-    'Base64' : base64.standard_b64decode,
-    'Base32' : base64.b32decode,
-    'Base16' : base64.b16decode,
-    'Ascii85' : base64.a85decode,
-    'Base85' : base64.b85decode,
-    'Uuencoding' : wrap_uu(uu.decode),
-    'BinHex' : wrap_binhex(binhex.hexbin),
-    'ROT13' : wrap_rot13(codecs.decode),
-    'Percent-encoding' : urllib.parse.unquote_to_bytes,
-    'MIME quoted-printable' : quopri.decodestring,
-    'HTML' : wrap_html(html.unescape),
-}
-# TODO: make this an OrderedDict?
+decode_string_funcs = collections.OrderedDict()
+decode_string_funcs['Base64'] = base64.standard_b64decode
+decode_string_funcs['Base32'] = base64.b32decode
+decode_string_funcs['Base16'] = base64.b16decode
+decode_string_funcs['Ascii85'] = base64.a85decode
+decode_string_funcs['Base85'] = base64.b85decode
+decode_string_funcs['Uuencoding'] = wrap_uu(uu.decode)
+decode_string_funcs['BinHex'] = wrap_binhex(binhex.hexbin)
+decode_string_funcs['ROT13'] = wrap_rot13(codecs.decode)
+decode_string_funcs['Percent-encoding'] = urllib.parse.unquote_to_bytes
+decode_string_funcs['MIME quoted-printable'] = quopri.decodestring
+decode_string_funcs['HTML'] = wrap_html(html.unescape)
 
-encode_string_funcs = {
-    'Base64' : base64.standard_b64encode,
-    'Base32' : base64.b32encode,
-    'Base16' : base64.b16encode,
-    'Ascii85' : base64.a85encode,
-    'Base85' : base64.b85encode,
-    'Uuencoding' : wrap_uu(uu.encode),
-    'BinHex' : wrap_binhex(binhex.binhex),
-    'ROT13' : wrap_rot13(codecs.encode),
-    'Percent-encoding' : wrap_percent_encode,
-    'MIME quoted-printable' : quopri.encodestring,
-    'HTML' : wrap_html(html.escape),
-}
+encode_string_funcs = collections.OrderedDict()
+encode_string_funcs['Base64'] = base64.standard_b64encode
+encode_string_funcs['Base32'] = base64.b32encode
+encode_string_funcs['Base16'] = base64.b16encode
+encode_string_funcs['Ascii85'] = base64.a85encode
+encode_string_funcs['Base85'] = base64.b85encode
+encode_string_funcs['Uuencoding'] = wrap_uu(uu.encode)
+encode_string_funcs['BinHex'] = wrap_binhex(binhex.binhex)
+encode_string_funcs['ROT13'] = wrap_rot13(codecs.encode)
+encode_string_funcs['Percent-encoding'] = wrap_percent_encode
+encode_string_funcs['MIME quoted-printable'] = quopri.encodestring
+encode_string_funcs['HTML'] = wrap_html(html.escape)
 
 def decode_bytes(unknown_bytes, func, encoding):
     assert isinstance(unknown_bytes, bytes), "{0} is type {1} not an instance of 'bytes' in encoding {2}".format(repr(unknown_bytes), type(unknown_bytes), encoding)
