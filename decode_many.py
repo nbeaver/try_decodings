@@ -77,8 +77,8 @@ decode_string_funcs['Base85'] = base64.b85decode
 decode_string_funcs['Uuencoding'] = wrap_uu(uu.decode)
 decode_string_funcs['BinHex'] = wrap_binhex(binhex.hexbin)
 decode_string_funcs['ROT13'] = wrap_rot13(codecs.decode)
-decode_string_funcs['Percent-encoding'] = urllib.parse.unquote_to_bytes
 decode_string_funcs['MIME quoted-printable'] = quopri.decodestring
+decode_string_funcs['Percent-encoding'] = urllib.parse.unquote_to_bytes
 decode_string_funcs['HTML'] = wrap_html(html.unescape)
 
 encode_string_funcs = collections.OrderedDict()
@@ -90,8 +90,8 @@ encode_string_funcs['Base85'] = base64.b85encode
 encode_string_funcs['Uuencoding'] = wrap_uu(uu.encode)
 encode_string_funcs['BinHex'] = wrap_binhex(binhex.binhex)
 encode_string_funcs['ROT13'] = wrap_rot13(codecs.encode)
-encode_string_funcs['Percent-encoding'] = wrap_percent_encode
 encode_string_funcs['MIME quoted-printable'] = quopri.encodestring
+encode_string_funcs['Percent-encoding'] = wrap_percent_encode
 encode_string_funcs['HTML'] = wrap_html(html.escape)
 
 def decode_bytes(unknown_bytes, func, encoding):
