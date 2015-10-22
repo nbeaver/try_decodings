@@ -95,7 +95,9 @@ encode_string_funcs['Percent-encoding'] = wrap_percent_encode
 encode_string_funcs['HTML'] = wrap_html(html.escape)
 
 def decode_bytes(unknown_bytes, func, encoding):
-    assert isinstance(unknown_bytes, bytes), "{0} is type {1} not an instance of 'bytes' in encoding {2}".format(repr(unknown_bytes), type(unknown_bytes), encoding)
+    assert isinstance(unknown_bytes, bytes), \
+        "{0} is type {1} not an instance of 'bytes' in encoding {2}".format(repr(unknown_bytes), type(unknown_bytes), encoding)
+
     decoded_bytes = None
     try:
         decoded_bytes = func(unknown_bytes)
