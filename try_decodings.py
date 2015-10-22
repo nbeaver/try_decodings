@@ -139,10 +139,11 @@ def self_test():
         assert decode_bytes(encoded_bytes, decode_string_funcs[encoding], encoding) == test_bytes, 'Round-tripping printable ASCII characters failed.'
 
 if len(sys.argv) > 1:
-    if sys.argv[1] == '-':
-        # Use default encoding.
-        decode_and_print(sys.stdin.read().encode())
+    if sys.argv[1] == '--selftest':
+        self_test()
     else:
         decode_and_print(open(sys.argv[1], 'rb').read())
+
 elif __name__ == "__main__":
-    self_test()
+    # Use default encoding.
+    decode_and_print(sys.stdin.read().encode())
