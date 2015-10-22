@@ -11,6 +11,7 @@ import urllib.parse # for percent-encoding.
 import quopri
 import html
 import collections
+import tempfile
 
 def wrap_uu(func):
     """
@@ -35,14 +36,13 @@ def wrap_binhex(func):
         out_bytes = f(in_bytes)
     """
     def new_func(in_bytes):
-        in_filename = 'binhex.in'
-        with open(in_filename, 'wb') as in_file:
-            in_file.write(in_bytes)
-        out_filename = 'binhex.out'
-        # We can't use tempfiles because hexbin() calls close().
-        func(in_filename, out_filename)
-        with open(out_filename, 'rb') as out_file:
-            out_bytes = out_file.read()
+        in_file = tempfile.NamedTemporaryFile()
+        in_file.write(in_bytes)
+        in_file.seek(0)
+        out_file = tempfile.NamedTemporaryFile()
+        func(in_file.name, out_file.name)
+        out_file.seek(0)
+        out_bytes = out_file.read()
         return out_bytes
 
     return new_func
