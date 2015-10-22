@@ -139,6 +139,7 @@ def self_test():
         assert decode_bytes(encoded_bytes, decode_string_funcs[encoding], encoding) == test_bytes, 'Round-tripping printable ASCII characters failed.'
 
 if len(sys.argv) > 1:
+    # TODO: add a --help flag.
     if sys.argv[1] == '--selftest':
         self_test()
     else:

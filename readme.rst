@@ -7,7 +7,7 @@ Use it like this on a file::
 
 or like this in a pipe::
 
-    $ printf 'ZXhhbXBsZSB0ZXh0' | python3 try_decodings.py -
+    $ printf 'ZXhhbXBsZSB0ZXh0' | python3 try_decodings.py
     Base64 : b'example text'
     Base32 failed.
     Base16 failed.
@@ -19,3 +19,7 @@ or like this in a pipe::
     MIME quoted-printable : b'ZXhhbXBsZSB0ZXh0'
     Percent-encoding : b'ZXhhbXBsZSB0ZXh0'
     HTML : b'ZXhhbXBsZSB0ZXh0'
+
+For a demonstration, run the self-test::
+
+    $ python3 try_decodings.py --selftest | less
