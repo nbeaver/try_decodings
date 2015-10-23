@@ -131,9 +131,10 @@ def decode_and_print(unknown_bytes):
                     output_dict[name] = repr(decoded_bytes)
         else:
             failed_encodings.append(name)
-    column_chars = max([len(name) for name in output_dict.keys()])
-    for name, output in output_dict.items():
-        print("{} : {}".format(name.ljust(column_chars), output))
+    if output_dict:
+        column_chars = max([len(name) for name in output_dict.keys()])
+        for name, output in output_dict.items():
+            print("{} : {}".format(name.ljust(column_chars), output))
     print("Failed to decode:", ", ".join(failed_encodings))
     print("Output same as input:", ", ".join(no_difference))
 
