@@ -1,3 +1,4 @@
 - [x] [Align output in columns.](https://github.com/nbeaver/try-decodings/issues/1)
 - [x] [Move list of failed encodings to the end.](https://github.com/nbeaver/try-decodings/issues/1)
 - [x] [Suppress output that is unchanged.](https://github.com/nbeaver/try-decodings/issues/2)
+- [ ] Terse mode so that it can be piped unchanged to other text filters.
