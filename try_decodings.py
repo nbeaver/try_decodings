@@ -131,8 +131,8 @@ def decode_and_print(unknown_bytes):
     column_chars = max([len(name) for name in output_dict.keys()])
     for name, output in output_dict.items():
         print("{} : {}".format(name.ljust(column_chars), output))
-    print("Failed:", ", ".join(failed_encodings))
-    print("No change:", ", ".join(no_difference))
+    print("Failed to decode:", ", ".join(failed_encodings))
+    print("Output same as input:", ", ".join(no_difference))
 
 def self_test():
     import string
