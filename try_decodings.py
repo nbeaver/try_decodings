@@ -102,20 +102,17 @@ def decode_bytes(unknown_bytes, func, encoding):
     try:
         decoded_bytes = func(unknown_bytes)
     except binascii.Error:
-        print(encoding, 'failed.')
         pass
     except binhex.Error:
-        print(encoding, 'failed.')
         pass
     except uu.Error:
-        print(encoding, 'failed.')
         pass
     except ValueError:
-        print(encoding, 'failed with ValueError.')
         pass
     return decoded_bytes
 
 def decode_and_print(unknown_bytes):
+    failed_encodings = []
     for name, func in decode_string_funcs.items():
         decoded_bytes = decode_bytes(unknown_bytes, func, name)
         if decoded_bytes:
@@ -125,6 +122,9 @@ def decode_and_print(unknown_bytes):
                 print(unicode_str)
             except UnicodeDecodeError:
                 print(decoded_bytes)
+        else:
+            failed_encodings.append(name)
+    print("Failed:", ", ".join(failed_encodings))
 
 def self_test():
     import string
