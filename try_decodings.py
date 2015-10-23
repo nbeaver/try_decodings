@@ -114,20 +114,23 @@ def decode_bytes(unknown_bytes, func, encoding):
 def decode_and_print(unknown_bytes):
     failed_encodings = []
     no_difference = []
+    output_dict = {}
     for name, func in decode_string_funcs.items():
         decoded_bytes = decode_bytes(unknown_bytes, func, name)
         if decoded_bytes:
             if decoded_bytes == unknown_bytes:
                 no_difference.append(name)
             else:
-                print(name, ': ', end="")
                 try:
                     unicode_str = decoded_bytes.decode()
-                    print(unicode_str)
+                    output_dict[name] = unicode_str
                 except UnicodeDecodeError:
-                    print(decoded_bytes)
+                    output_dict[name] = repr(decoded_bytes)
         else:
             failed_encodings.append(name)
+    column_chars = max([len(name) for name in output_dict.keys()])
+    for name, output in output_dict.items():
+        print("{} : {}".format(name.ljust(column_chars), output))
     print("Failed:", ", ".join(failed_encodings))
     print("No change:", ", ".join(no_difference))
 
