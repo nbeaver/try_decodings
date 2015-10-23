@@ -114,7 +114,7 @@ def decode_bytes(unknown_bytes, func, encoding):
 def decode_and_print(unknown_bytes):
     failed_encodings = []
     no_difference = []
-    output_dict = {}
+    output_dict = collections.OrderedDict()
     for name, func in decode_string_funcs.items():
         decoded_bytes = decode_bytes(unknown_bytes, func, name)
         if decoded_bytes:
