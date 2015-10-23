@@ -112,6 +112,9 @@ def decode_bytes(unknown_bytes, func, encoding):
     return decoded_bytes
 
 def decode_and_print(unknown_bytes):
+    if unknown_bytes == b'':
+        print("Error: no input to decode.")
+        sys.exit(1)
     failed_encodings = []
     no_difference = []
     output_dict = collections.OrderedDict()
