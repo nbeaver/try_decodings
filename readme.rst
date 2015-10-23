@@ -1,5 +1,7 @@
-This tries some common binary-to-ascii encodings
-and a few ascii-to-ascii encodings.
+This tries to decode bytes to some `binary-to-ascii encodings`_
+as well as percent encoding, HTML entity encoding, and a few others.
+
+.. _binary-to-ascii encodings: https://en.wikipedia.org/wiki/Binary-to-text_encoding
 
 Use it like this on a file::
 
