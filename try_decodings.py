@@ -141,6 +141,7 @@ def decode_and_print(unknown_bytes):
 def self_test():
     import string
     test_string = string.printable
+    # Todo: test unicode as well, e.g. unicodedata.lookup('snowman')
     test_bytes = test_string.encode()
     print("Encoding and decoding this string: "+repr(test_string))
     for encoding, func in encode_string_funcs.items():
