@@ -8,5 +8,8 @@
 
 # Bugs #
 
-- [x] Does not handle case when all input either fails or is unchanged, e.g. `printf '\u9090' | try_decodings.py`
-- [ ] Does not properly handle output of control characters, e.g. Ascii85 output for `echo '%40' | try_decodings.py`
+- [x] Does not handle case when all input either fails or is unchanged,
+      e.g. `printf '\u9090' | try_decodings.py`
+- [ ] Does not properly handle output of control characters,
+      e.g. Ascii85 output for `echo '%40' | try_decodings.py`
+      or `echo %7D | try_decodings.py`
