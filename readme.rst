@@ -23,3 +23,11 @@ or like this in a pipe::
 For a demonstration, run the self-test::
 
     $ python3 try_decodings.py --selftest | less
+
+-------
+License
+-------
+
+This project is licensed under the terms of the `MIT license`_.
+
+.. _MIT license: LICENSE.txt
