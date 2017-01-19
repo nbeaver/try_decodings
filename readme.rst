@@ -1,9 +1,9 @@
 This tries to decode bytes to some `binary-to-ascii encodings`_
 as well as percent encoding, HTML entity encoding, and a few others.
-It was inspired by a `StackExchange post`_.
+Its inspiration was a `StackExchange post`_ by `Nicolas Raoul`_.
 
 .. _StackExchange post: http://softwarerecs.stackexchange.com/questions/18615/convert-an-enigmatic-string-using-many-common-decoding-algorithms-to-check-whic
-
+.. _Nicolas Raoul: http://softwarerecs.stackexchange.com/users/140/nicolas-raoul
 .. _binary-to-ascii encodings: https://en.wikipedia.org/wiki/Binary-to-text_encoding
 
 Use it like this on a file::
