@@ -1,11 +1,15 @@
 #! /usr/bin/env python3
 
+import sys
+if sys.version_info.major < 3:
+    sys.stderr.write("{} requires Python 3\n".format(sys.argv[0]))
+    sys.exit(1)
+
 import binascii
 import base64
 import binhex
 import uu
 import io # for uuencode
-import sys
 import codecs # for ROT13
 import urllib.parse # for percent-encoding.
 import quopri
