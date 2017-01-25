@@ -1,5 +1,6 @@
-This tries to decode bytes to some `binary-to-ascii encodings`_
-as well as percent encoding, HTML entity encoding, and a few others.
+This Python script tries to decode bytes to plain text
+using some common `binary-to-ascii encodings`_ like Base64,
+percent encoding, HTML entity encoding, and a few others.
 Its inspiration was a `StackExchange post`_ by `Nicolas Raoul`_.
 
 .. _StackExchange post: http://softwarerecs.stackexchange.com/questions/18615/convert-an-enigmatic-string-using-many-common-decoding-algorithms-to-check-whic
@@ -10,7 +11,7 @@ Use it like this on a file::
 
     python3 try_decodings.py temp.txt
 
-or like this in a pipe::
+Use it like this in a pipe::
 
     $ printf 'example text' | base64 | try_decodings.py
     Base64  : example text
