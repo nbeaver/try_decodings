@@ -115,6 +115,9 @@ def decode_bytes(unknown_bytes, func, encoding):
         pass
     return decoded_bytes
 
+# TODO: make this just decode and return a dict
+# instead of also printing the output
+# to facilitate testing.
 def decode_and_print(unknown_bytes):
     if unknown_bytes == b'':
         print("Error: no input to decode.")
