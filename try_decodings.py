@@ -161,6 +161,7 @@ def self_test():
 if len(sys.argv) > 1:
     # TODO: add a --help flag.
     # TODO: add an --encodings flag to list encoding.
+    # TODO: add a --reverse flag to encode instead of decode.
     if sys.argv[1] == '--selftest':
         self_test()
     else:
