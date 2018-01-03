@@ -16,6 +16,7 @@ import quopri
 import html
 import collections
 import tempfile
+import logging
 
 def wrap_uu(func):
     """
@@ -120,8 +121,7 @@ def decode_bytes(unknown_bytes, func, encoding):
 # to facilitate testing.
 def decode_and_print(unknown_bytes):
     if unknown_bytes == b'':
-        print("Error: no input to decode.")
-        sys.exit(1)
+        logging.error("no input to decode")
     failed_encodings = []
     no_difference = []
     output_dict = collections.OrderedDict()
