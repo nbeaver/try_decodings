@@ -11,6 +11,10 @@
 
 - [ ] Terse mode so that it can be piped unchanged to other text filters.
 
+- [ ] Output in JSON format for sending to other programs.
+
+- [ ] Output null-delimited format for processing with e.g. `xargs --null`
+
 # Bugs #
 
 - [x] Does not handle case when all input either fails or is unchanged,
