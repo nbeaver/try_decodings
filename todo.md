@@ -15,6 +15,12 @@
 
 - [ ] Output null-delimited format for processing with e.g. `xargs --null`
 
+- [ ] Check how this handles very large input files.
+
+- [ ] Check how this handles /dev/null.
+
+- [ ] Check how this handles /dev/zero.
+
 # Bugs #
 
 - [x] Does not handle case when all input either fails or is unchanged,
