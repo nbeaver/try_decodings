@@ -7,7 +7,7 @@
 
 - [x] [Suppress output that is unchanged.](https://github.com/nbeaver/try-decodings/issues/2)
 
-- [ ] Use `argparse` package for better command-line parsing.
+- [x] Use `argparse` package for better command-line parsing.
 
 - [ ] Terse mode so that it can be piped unchanged to other text filters.
 
