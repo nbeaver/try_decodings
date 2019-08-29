@@ -159,7 +159,7 @@ if __name__ == "__main__":
     # TODO: add an --encodings flag to list encodings.
     # TODO: add a --reverse flag to encode instead of decode.
     parser = argparse.ArgumentParser(
-        description='Visit files from file or stdin.'
+        description='Try binary-to-ascii decodings on a given file or stdin.'
     )
     parser.add_argument(
         '-v',
