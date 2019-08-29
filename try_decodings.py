@@ -17,6 +17,7 @@ import html
 import collections
 import tempfile
 import logging
+import argparse
 
 def wrap_uu(func):
     """
@@ -158,15 +159,44 @@ def self_test():
         decode_and_print(encoded_bytes)
         assert decode_bytes(encoded_bytes, decode_string_funcs[encoding], encoding) == test_bytes, 'Round-tripping printable ASCII characters failed.'
 
-if len(sys.argv) > 1:
-    # TODO: add a --help flag.
-    # TODO: add an --encodings flag to list encoding.
+if __name__ == "__main__":
+    # TODO: add an --encodings flag to list encodings.
     # TODO: add a --reverse flag to encode instead of decode.
-    if sys.argv[1] == '--selftest':
+    parser = argparse.ArgumentParser(
+        description='Visit files from file or stdin.'
+    )
+    parser.add_argument(
+        '-v',
+        '--verbose',
+        help='More verbose logging',
+        dest="loglevel",
+        default=logging.WARNING,
+        action="store_const",
+        const=logging.INFO,
+    )
+    parser.add_argument(
+        '-d',
+        '--debug',
+        help='Enable debugging logs',
+        action="store_const",
+        dest="loglevel",
+        const=logging.DEBUG,
+    )
+    parser.add_argument(
+        '--self-test',
+        help='Run a self-test',
+        action='store_true',
+    )
+    parser.add_argument(
+        'infile',
+        nargs='?',
+        type=argparse.FileType('rb'),
+        default=sys.stdin.buffer,
+        help='Input file (or stdin)',
+    )
+    args = parser.parse_args()
+    logging.basicConfig(level=args.loglevel)
+    if args.self_test:
         self_test()
     else:
-        decode_and_print(open(sys.argv[1], 'rb').read())
-
-elif __name__ == "__main__":
-    # Use default encoding.
-    decode_and_print(sys.stdin.read().encode())
+        decode_and_print(args.infile.read())
