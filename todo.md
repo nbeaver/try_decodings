@@ -21,6 +21,10 @@
 
 - [ ] Check how this handles /dev/zero.
 
+- [ ] Create example files for automated testing of command line functionality.
+
+- [ ] Create automated tests for stdin.
+
 # Bugs #
 
 - [x] Does not handle case when all input either fails or is unchanged,
