@@ -193,6 +193,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     logging.basicConfig(level=args.loglevel)
     if args.self_test:
+        if args.infile != sys.stdin.buffer:
+            logging.warning("running self-test, not processing file: '{}'".format(args.infile.name))
         self_test()
     else:
         decode_and_print(args.infile.read())
