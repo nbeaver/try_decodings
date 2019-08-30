@@ -183,6 +183,9 @@ if __name__ == "__main__":
         help='Run a self-test',
         action='store_true',
     )
+    # TODO: should this be a filter by default,
+    # or should it require a `-' argument to function that way
+    # so that --self-test and infile can be mutually exclusive arguments?
     parser.add_argument(
         'infile',
         nargs='?',
