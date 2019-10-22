@@ -5,15 +5,16 @@ import binascii
 import base64
 import binhex
 import uu
-import io # for uuencode
-import codecs # for ROT13
-import urllib.parse # for percent-encoding.
+import io  # for uuencode
+import codecs  # for ROT13
+import urllib.parse  # for percent-encoding.
 import quopri
 import html
 import collections
 import tempfile
 import logging
 import argparse
+
 
 def wrap_uu(func):
     """
@@ -22,13 +23,16 @@ def wrap_uu(func):
     to
         out_bytes = f(in_string)
     """
+
     def new_func(in_bytes):
         in_file = io.BytesIO(in_bytes)
         out_file = io.BytesIO()
         func(in_file, out_file)
         out_file.seek(0)
         return out_file.read()
+
     return new_func
+
 
 def wrap_binhex(func):
     """
@@ -37,6 +41,7 @@ def wrap_binhex(func):
     to
         out_bytes = f(in_bytes)
     """
+
     def new_func(in_bytes):
         in_file = tempfile.NamedTemporaryFile()
         in_file.write(in_bytes)
@@ -49,6 +54,7 @@ def wrap_binhex(func):
 
     return new_func
 
+
 def wrap_rot13(func):
     # We can't use functools.partial
     # because codecs.encode takes no keyword arguments.
@@ -56,49 +62,58 @@ def wrap_rot13(func):
         # I'm not sure this is correct,
         # but 'rot-13' is str-to-str only.
         in_str = in_bytes.decode()
-        out_str = func(in_str, 'rot-13')
+        out_str = func(in_str, "rot-13")
         return out_str.encode()
+
     return new_func
+
 
 def wrap_html(func):
     def new_func(in_bytes):
         in_str = in_bytes.decode()
         out_str = func(in_str)
         return out_str.encode()
+
     return new_func
+
 
 def wrap_percent_encode(in_string):
     return urllib.parse.quote_from_bytes(in_string).encode()
 
+
 decode_string_funcs = collections.OrderedDict()
-decode_string_funcs['Base64'] = base64.standard_b64decode
-decode_string_funcs['Base32'] = base64.b32decode
-decode_string_funcs['Base16'] = base64.b16decode
-decode_string_funcs['Ascii85'] = base64.a85decode
-decode_string_funcs['Base85'] = base64.b85decode
-decode_string_funcs['Uuencoding'] = wrap_uu(uu.decode)
-decode_string_funcs['BinHex'] = wrap_binhex(binhex.hexbin)
-decode_string_funcs['ROT13'] = wrap_rot13(codecs.decode)
-decode_string_funcs['MIME quoted-printable'] = quopri.decodestring
-decode_string_funcs['Percent-encoding'] = urllib.parse.unquote_to_bytes
-decode_string_funcs['HTML'] = wrap_html(html.unescape)
+decode_string_funcs["Base64"] = base64.standard_b64decode
+decode_string_funcs["Base32"] = base64.b32decode
+decode_string_funcs["Base16"] = base64.b16decode
+decode_string_funcs["Ascii85"] = base64.a85decode
+decode_string_funcs["Base85"] = base64.b85decode
+decode_string_funcs["Uuencoding"] = wrap_uu(uu.decode)
+decode_string_funcs["BinHex"] = wrap_binhex(binhex.hexbin)
+decode_string_funcs["ROT13"] = wrap_rot13(codecs.decode)
+decode_string_funcs["MIME quoted-printable"] = quopri.decodestring
+decode_string_funcs["Percent-encoding"] = urllib.parse.unquote_to_bytes
+decode_string_funcs["HTML"] = wrap_html(html.unescape)
 
 encode_string_funcs = collections.OrderedDict()
-encode_string_funcs['Base64'] = base64.standard_b64encode
-encode_string_funcs['Base32'] = base64.b32encode
-encode_string_funcs['Base16'] = base64.b16encode
-encode_string_funcs['Ascii85'] = base64.a85encode
-encode_string_funcs['Base85'] = base64.b85encode
-encode_string_funcs['Uuencoding'] = wrap_uu(uu.encode)
-encode_string_funcs['BinHex'] = wrap_binhex(binhex.binhex)
-encode_string_funcs['ROT13'] = wrap_rot13(codecs.encode)
-encode_string_funcs['MIME quoted-printable'] = quopri.encodestring
-encode_string_funcs['Percent-encoding'] = wrap_percent_encode
-encode_string_funcs['HTML'] = wrap_html(html.escape)
+encode_string_funcs["Base64"] = base64.standard_b64encode
+encode_string_funcs["Base32"] = base64.b32encode
+encode_string_funcs["Base16"] = base64.b16encode
+encode_string_funcs["Ascii85"] = base64.a85encode
+encode_string_funcs["Base85"] = base64.b85encode
+encode_string_funcs["Uuencoding"] = wrap_uu(uu.encode)
+encode_string_funcs["BinHex"] = wrap_binhex(binhex.binhex)
+encode_string_funcs["ROT13"] = wrap_rot13(codecs.encode)
+encode_string_funcs["MIME quoted-printable"] = quopri.encodestring
+encode_string_funcs["Percent-encoding"] = wrap_percent_encode
+encode_string_funcs["HTML"] = wrap_html(html.escape)
+
 
 def decode_bytes(unknown_bytes, func, encoding):
-    assert isinstance(unknown_bytes, bytes), \
-        "{0} is type {1} not an instance of 'bytes' in encoding {2}".format(repr(unknown_bytes), type(unknown_bytes), encoding)
+    assert isinstance(
+        unknown_bytes, bytes
+    ), "{0} is type {1} not an instance of 'bytes' in encoding {2}".format(
+        repr(unknown_bytes), type(unknown_bytes), encoding
+    )
 
     decoded_bytes = None
     try:
@@ -113,11 +128,12 @@ def decode_bytes(unknown_bytes, func, encoding):
         pass
     return decoded_bytes
 
+
 # TODO: make this just decode and return a dict
 # instead of also printing the output
 # to facilitate testing.
 def decode_and_print(unknown_bytes):
-    if unknown_bytes == b'':
+    if unknown_bytes == b"":
         logging.error("no input to decode")
     failed_encodings = []
     no_difference = []
@@ -142,62 +158,66 @@ def decode_and_print(unknown_bytes):
     print("Failed to decode:", ", ".join(failed_encodings))
     print("Output same as input:", ", ".join(no_difference))
 
+
 def self_test():
     import string
+
     test_string = string.printable
     # Todo: test unicode as well, e.g. unicodedata.lookup('snowman')
     test_bytes = test_string.encode()
-    print("Encoding and decoding this string: "+repr(test_string))
+    print("Encoding and decoding this string: " + repr(test_string))
     for encoding, func in encode_string_funcs.items():
         print("======== " + encoding + " ========")
         encoded_bytes = func(test_bytes)
         print(encoded_bytes)
         decode_and_print(encoded_bytes)
-        assert decode_bytes(encoded_bytes, decode_string_funcs[encoding], encoding) == test_bytes, 'Round-tripping printable ASCII characters failed.'
+        assert (
+            decode_bytes(encoded_bytes, decode_string_funcs[encoding], encoding)
+            == test_bytes
+        ), "Round-tripping printable ASCII characters failed."
+
 
 if __name__ == "__main__":
     # TODO: add an --encodings flag to list encodings.
     # TODO: add a --reverse flag to encode instead of decode.
     parser = argparse.ArgumentParser(
-        description='Try binary-to-ascii decodings on a given file or stdin.'
+        description="Try binary-to-ascii decodings on a given file or stdin."
     )
     parser.add_argument(
-        '-v',
-        '--verbose',
-        help='More verbose logging',
+        "-v",
+        "--verbose",
+        help="More verbose logging",
         dest="loglevel",
         default=logging.WARNING,
         action="store_const",
         const=logging.INFO,
     )
     parser.add_argument(
-        '-d',
-        '--debug',
-        help='Enable debugging logs',
+        "-d",
+        "--debug",
+        help="Enable debugging logs",
         action="store_const",
         dest="loglevel",
         const=logging.DEBUG,
     )
-    parser.add_argument(
-        '--self-test',
-        help='Run a self-test',
-        action='store_true',
-    )
+    parser.add_argument("--self-test", help="Run a self-test", action="store_true")
     # TODO: should this be a filter by default,
     # or should it require a `-' argument to function that way
     # so that --self-test and infile can be mutually exclusive arguments?
     parser.add_argument(
-        'infile',
-        nargs='?',
-        type=argparse.FileType('rb'),
+        "infile",
+        nargs="?",
+        type=argparse.FileType("rb"),
         default=sys.stdin.buffer,
-        help='Input file (or stdin)',
+        help="Input file (or stdin)",
     )
     args = parser.parse_args()
     logging.basicConfig(level=args.loglevel)
     if args.self_test:
         if args.infile != sys.stdin.buffer:
-            logging.warning("running self-test, not processing file: '{}'".format(args.infile.name))
+            logging.warning(
+                "running self-test, not processing file: '{}'".format(args.infile.name)
+            )
         self_test()
     else:
         decode_and_print(args.infile.read())
