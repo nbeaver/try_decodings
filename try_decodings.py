@@ -200,7 +200,9 @@ if __name__ == "__main__":
         dest="loglevel",
         const=logging.DEBUG,
     )
-    parser.add_argument("--self-test", help="Run a self-test", action="store_true")
+    parser.add_argument(
+        "--self-test", help="Run a self-test", action="store_true"
+    )
     # TODO: should this be a filter by default,
     # or should it require a `-' argument to function that way
     # so that --self-test and infile can be mutually exclusive arguments?
@@ -216,7 +218,9 @@ if __name__ == "__main__":
     if args.self_test:
         if args.infile != sys.stdin.buffer:
             logging.warning(
-                "running self-test, not processing file: '{}'".format(args.infile.name)
+                "running self-test, not processing file: '{}'".format(
+                    args.infile.name
+                )
             )
         self_test()
     else:
