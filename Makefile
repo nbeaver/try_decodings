@@ -9,4 +9,4 @@ format :
 	black --line-length 80 try_decodings.py
 
 test :
-	python3 try_decodings.py --selftest
+	python3 try_decodings.py --self-test
