@@ -10,3 +10,6 @@ format :
 
 test :
 	python3 try_decodings.py --self-test
+
+distrobox :
+	distrobox create --image python:3.8-alpine --name try_decodings
