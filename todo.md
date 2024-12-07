@@ -27,9 +27,9 @@
 
 # Bugs #
 
-- [ ] Fix missing uu library by copying the source code https://docs.python.org/3.12/library/uu.html https://github.com/python/cpython/blob/3.12/Lib/uu.py
+- [x] Fix missing uu library by copying the source code https://docs.python.org/3.12/library/uu.html https://github.com/python/cpython/blob/3.12/Lib/uu.py
 
-- [ ] Fix missing binhex library by copying the source code https://docs.python.org/3.10/library/binhex.html https://github.com/python/cpython/blob/3.10/Lib/binhex.py
+- [x] Fix missing binhex library by copying the source code https://docs.python.org/3.10/library/binhex.html https://github.com/python/cpython/blob/3.10/Lib/binhex.py
 
 - [x] Does not handle case when all input either fails or is unchanged,
       e.g. `printf '\u9090' | try_decodings.py`
