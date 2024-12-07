@@ -25,6 +25,24 @@ For a demonstration, run the self-test::
 
     $ python3 try_decodings.py --selftest | less
 
+Nota bene: This script utilizes the binhex and uu modules that, after thirty 
+years of inclusion, will be completely absent starting sometime during the 
+lifespan of Python 3.  The easiest workaround for both developers and users 
+is probably found in a containerized Python.  This project's makefile now 
+includes a distrobox target that will install a small (<50MB) Alpine Linux 
+container running Pyton 3.8, which predates the deprecation of the required 
+standard library modules.  While "inside" the distrobox, one can interact with
+the script exactly as described earlier without downgrading their native python
+distribution.  Linux users can install Distrobox via their system tools, Windows
+users can use the `Windows Subsystem for Linux`_ 
+
+Assuming Distrobox and a container manager are installed (I recommend Podman), use
+it from the project's directory like this::
+    make distrobox
+    distrobox enter try_decodings 
+
+.. _Windows Subsystem for Linux: https://learn.microsoft.com/en-us/windows/wsl/install
+
 -------
 License
 -------
