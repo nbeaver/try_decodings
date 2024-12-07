@@ -1,18 +1,20 @@
 #! /usr/bin/env python3
 
-import sys
-import binascii
-import base64
-import uu
-import io  # for uuencode
-import codecs  # for ROT13
-import urllib.parse  # for percent-encoding.
-import quopri
-import html
-import collections
-import tempfile
-import logging
 import argparse
+import base64
+import binascii
+import codecs  # for ROT13
+import collections
+import html
+import io
+import logging
+import os
+import quopri
+import struct
+import sys
+import tempfile
+import urllib.parse  # for percent-encoding.
+import uu
 
 """
 Include the latest binhex source release before deprecation.
@@ -41,12 +43,6 @@ hexbin(inputfilename, outputfilename)
 # input. The resulting code (xx 90 90) would appear to be interpreted as an
 # escaped *value* of 0x90. All coders I've seen appear to ignore this nicety...
 #
-import binascii
-import contextlib
-import io
-import os
-import struct
-import warnings
 
 class BinHexError(Exception):
     pass
