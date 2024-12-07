@@ -3,7 +3,6 @@
 import sys
 import binascii
 import base64
-import binhex
 import uu
 import io  # for uuencode
 import codecs  # for ROT13
@@ -49,13 +48,7 @@ import os
 import struct
 import warnings
 
-warnings.warn('the binhex module is deprecated', DeprecationWarning,
-              stacklevel=2)
-
-
-__all__ = ["binhex","hexbin","Error"]
-
-class Error(Exception):
+class BinHexError(Exception):
     pass
 
 # States (what have we written)
@@ -103,16 +96,6 @@ class openrsrc:
     def close(self):
         pass
 
-
-# DeprecationWarning is already emitted on "import binhex". There is no need
-# to repeat the warning at each call to deprecated binascii functions.
-@contextlib.contextmanager
-def _ignore_deprecation_warning():
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', '', DeprecationWarning)
-        yield
-
-
 class _Hqxcoderengine:
     """Write data to the coder in 3-byte chunks"""
 
@@ -130,8 +113,7 @@ class _Hqxcoderengine:
         self.data = self.data[todo:]
         if not data:
             return
-        with _ignore_deprecation_warning():
-            self.hqxdata = self.hqxdata + binascii.b2a_hqx(data)
+        self.hqxdata = self.hqxdata + binascii.b2a_hqx(data)
         self._flush(0)
 
     def _flush(self, force):
@@ -147,8 +129,7 @@ class _Hqxcoderengine:
 
     def close(self):
         if self.data:
-            with _ignore_deprecation_warning():
-                self.hqxdata = self.hqxdata + binascii.b2a_hqx(self.data)
+            self.hqxdata = self.hqxdata + binascii.b2a_hqx(self.data)
         self._flush(1)
         self.ofp.close()
         del self.ofp
@@ -164,15 +145,13 @@ class _Rlecoderengine:
         self.data = self.data + data
         if len(self.data) < REASONABLY_LARGE:
             return
-        with _ignore_deprecation_warning():
-            rledata = binascii.rlecode_hqx(self.data)
+        rledata = binascii.rlecode_hqx(self.data)
         self.ofp.write(rledata)
         self.data = b''
 
     def close(self):
         if self.data:
-            with _ignore_deprecation_warning():
-                rledata = binascii.rlecode_hqx(self.data)
+            rledata = binascii.rlecode_hqx(self.data)
             self.ofp.write(rledata)
         self.ofp.close()
         del self.ofp
@@ -204,7 +183,7 @@ class BinHex:
     def _writeinfo(self, name, finfo):
         nl = len(name)
         if nl > 63:
-            raise Error('Filename too long')
+            raise BinHexError('Filename too long')
         d = bytes([nl]) + name.encode("latin-1") + b'\0'
         tp, cr = finfo.Type, finfo.Creator
         if isinstance(tp, str):
@@ -236,13 +215,13 @@ class BinHex:
 
     def write(self, data):
         if self.state != _DID_HEADER:
-            raise Error('Writing data at the wrong time')
+            raise BinHexError('Writing data at the wrong time')
         self.dlen = self.dlen - len(data)
         self._write(data)
 
     def close_data(self):
         if self.dlen != 0:
-            raise Error('Incorrect data size, diff=%r' % (self.rlen,))
+            raise BinHexError('Incorrect data size, diff=%r' % (self.rlen,))
         self._writecrc()
         self.state = _DID_DATA
 
@@ -250,7 +229,7 @@ class BinHex:
         if self.state < _DID_DATA:
             self.close_data()
         if self.state != _DID_DATA:
-            raise Error('Writing resource data at the wrong time')
+            raise BinHexError('Writing resource data at the wrong time')
         self.rlen = self.rlen - len(data)
         self._write(data)
 
@@ -261,9 +240,9 @@ class BinHex:
             if self.state < _DID_DATA:
                 self.close_data()
             if self.state != _DID_DATA:
-                raise Error('Close at the wrong time')
+                raise BinHexError('Close at the wrong time')
             if self.rlen != 0:
-                raise Error("Incorrect resource-datasize, diff=%r" % (self.rlen,))
+                raise BinHexError("Incorrect resource-datasize, diff=%r" % (self.rlen,))
             self._writecrc()
         finally:
             self.state = None
@@ -317,19 +296,18 @@ class _Hqxdecoderengine:
             #
             while True:
                 try:
-                    with _ignore_deprecation_warning():
-                        decdatacur, self.eof = binascii.a2b_hqx(data)
+                    decdatacur, self.eof = binascii.a2b_hqx(data)
                     break
                 except binascii.Incomplete:
                     pass
                 newdata = self.ifp.read(1)
                 if not newdata:
-                    raise Error('Premature EOF on binhex file')
+                    raise BinHexError('Premature EOF on binhex file')
                 data = data + newdata
             decdata = decdata + decdatacur
             wtd = totalwtd - len(decdata)
             if not decdata and not self.eof:
-                raise Error('Premature EOF on binhex file')
+                raise BinHexError('Premature EOF on binhex file')
         return decdata
 
     def close(self):
@@ -354,9 +332,8 @@ class _Rledecoderengine:
     def _fill(self, wtd):
         self.pre_buffer = self.pre_buffer + self.ifp.read(wtd + 4)
         if self.ifp.eof:
-            with _ignore_deprecation_warning():
-                self.post_buffer = self.post_buffer + \
-                    binascii.rledecode_hqx(self.pre_buffer)
+            self.post_buffer = self.post_buffer + \
+                binascii.rledecode_hqx(self.pre_buffer)
             self.pre_buffer = b''
             return
 
@@ -383,9 +360,8 @@ class _Rledecoderengine:
         else:
             mark = mark - 1
 
-        with _ignore_deprecation_warning():
-            self.post_buffer = self.post_buffer + \
-                binascii.rledecode_hqx(self.pre_buffer[:mark])
+        self.post_buffer = self.post_buffer + \
+            binascii.rledecode_hqx(self.pre_buffer[:mark])
         self.pre_buffer = self.pre_buffer[mark:]
 
     def close(self):
@@ -401,7 +377,7 @@ class HexBin:
         while True:
             ch = ifp.read(1)
             if not ch:
-                raise Error("No binhex data found")
+                raise BinHexError("No binhex data found")
             # Cater for \r\n terminated lines (which show up as \n\r, hence
             # all lines start with \r)
             if ch == b'\r':
@@ -425,7 +401,7 @@ class HexBin:
         # XXXX Is this needed??
         self.crc = self.crc & 0xffff
         if filecrc != self.crc:
-            raise Error('CRC error, computed %x, read %x'
+            raise BinHexError('CRC error, computed %x, read %x'
                         % (self.crc, filecrc))
         self.crc = 0
 
@@ -451,7 +427,7 @@ class HexBin:
 
     def read(self, *n):
         if self.state != _DID_HEADER:
-            raise Error('Read data at wrong time')
+            raise BinHexError('Read data at wrong time')
         if n:
             n = n[0]
             n = min(n, self.dlen)
@@ -465,7 +441,7 @@ class HexBin:
 
     def close_data(self):
         if self.state != _DID_HEADER:
-            raise Error('close_data at wrong time')
+            raise BinHexError('close_data at wrong time')
         if self.dlen:
             dummy = self._read(self.dlen)
         self._checkcrc()
@@ -475,7 +451,7 @@ class HexBin:
         if self.state == _DID_HEADER:
             self.close_data()
         if self.state != _DID_DATA:
-            raise Error('Read resource data at wrong time')
+            raise BinHexError('Read resource data at wrong time')
         if n:
             n = n[0]
             n = min(n, self.rlen)
@@ -597,7 +573,7 @@ decode_string_funcs["Base16"] = base64.b16decode
 decode_string_funcs["Ascii85"] = base64.a85decode
 decode_string_funcs["Base85"] = base64.b85decode
 decode_string_funcs["Uuencoding"] = wrap_uu(uu.decode)
-decode_string_funcs["BinHex"] = wrap_binhex(binhex.hexbin)
+decode_string_funcs["BinHex"] = wrap_binhex(hexbin)
 decode_string_funcs["ROT13"] = wrap_rot13(codecs.decode)
 decode_string_funcs["MIME quoted-printable"] = quopri.decodestring
 decode_string_funcs["Percent-encoding"] = urllib.parse.unquote_to_bytes
@@ -610,7 +586,7 @@ encode_string_funcs["Base16"] = base64.b16encode
 encode_string_funcs["Ascii85"] = base64.a85encode
 encode_string_funcs["Base85"] = base64.b85encode
 encode_string_funcs["Uuencoding"] = wrap_uu(uu.encode)
-encode_string_funcs["BinHex"] = wrap_binhex(binhex.binhex)
+encode_string_funcs["BinHex"] = wrap_binhex(binhex)
 encode_string_funcs["ROT13"] = wrap_rot13(codecs.encode)
 encode_string_funcs["MIME quoted-printable"] = quopri.encodestring
 encode_string_funcs["Percent-encoding"] = wrap_percent_encode
@@ -629,7 +605,7 @@ def decode_bytes(unknown_bytes, func, encoding):
         decoded_bytes = func(unknown_bytes)
     except binascii.Error:
         pass
-    except binhex.Error:
+    except BinHexError:
         pass
     except uu.Error:
         pass
