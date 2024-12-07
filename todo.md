@@ -37,3 +37,5 @@
 - [ ] Does not properly handle output of control characters,
       e.g. Ascii85 output for `echo '%40' | try_decodings.py`
       or `echo %7D | try_decodings.py`
+
+- [ ] Decide when to strip trailing newline so e.g. base32 decoding will work
