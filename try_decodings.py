@@ -14,7 +14,6 @@ import struct
 import sys
 import tempfile
 import urllib.parse  # for percent-encoding.
-import uu
 
 """
 Include the latest binhex source release before deprecation.
@@ -527,23 +526,14 @@ https://github.com/python/cpython/blob/3.12/Lib/uu.py
 
 """Implementation of the UUencode and UUdecode functions.
 
-encode(in_file, out_file [,name, mode], *, backtick=False)
-decode(in_file [, out_file, mode, quiet])
+uuencode(in_file, out_file [,name, mode], *, backtick=False)
+uudecode(in_file [, out_file, mode, quiet])
 """
 
-import binascii
-import os
-import sys
-import warnings
-
-warnings._deprecated(__name__, remove=(3, 13))
-
-__all__ = ["Error", "encode", "decode"]
-
-class Error(Exception):
+class UUDecodeError(Exception):
     pass
 
-def encode(in_file, out_file, name=None, mode=None, *, backtick=False):
+def uuencode(in_file, out_file, name=None, mode=None, *, backtick=False):
     """Uuencode file"""
     #
     # If in_file is a pathname open it and change defaults
@@ -590,6 +580,7 @@ def encode(in_file, out_file, name=None, mode=None, *, backtick=False):
         out_file.write(('begin %o %s\n' % ((mode & 0o777), name)).encode("ascii"))
         data = in_file.read(45)
         while len(data) > 0:
+            # requires version 3.7 or later.
             out_file.write(binascii.b2a_uu(data, backtick=backtick))
             data = in_file.read(45)
         if backtick:
@@ -601,7 +592,7 @@ def encode(in_file, out_file, name=None, mode=None, *, backtick=False):
             f.close()
 
 
-def decode(in_file, out_file=None, mode=None, quiet=False):
+def uudecode(in_file, out_file=None, mode=None, quiet=False):
     """Decode uuencoded file"""
     #
     # Open the input file, if needed.
@@ -620,7 +611,7 @@ def decode(in_file, out_file=None, mode=None, quiet=False):
         while True:
             hdr = in_file.readline()
             if not hdr:
-                raise Error('No valid begin line found in input file')
+                raise UUDecodeError('No valid begin line found in input file')
             if not hdr.startswith(b'begin'):
                 continue
             hdrfields = hdr.split(b' ', 2)
@@ -634,14 +625,14 @@ def decode(in_file, out_file=None, mode=None, quiet=False):
             # If the filename isn't ASCII, what's up with that?!?
             out_file = hdrfields[2].rstrip(b' \t\r\n\f').decode("ascii")
             if os.path.exists(out_file):
-                raise Error(f'Cannot overwrite existing file: {out_file}')
+                raise UUDecodeError(f'Cannot overwrite existing file: {out_file}')
             if (out_file.startswith(os.sep) or
                 f'..{os.sep}' in out_file or (
                     os.altsep and
                     (out_file.startswith(os.altsep) or
                      f'..{os.altsep}' in out_file))
                ):
-                raise Error(f'Refusing to write to {out_file} due to directory traversal')
+                raise UUDecodeError(f'Refusing to write to {out_file} due to directory traversal')
         if mode is None:
             mode = int(hdrfields[1], 8)
         #
@@ -670,51 +661,12 @@ def decode(in_file, out_file=None, mode=None, quiet=False):
             out_file.write(data)
             s = in_file.readline()
         if not s:
-            raise Error('Truncated input file')
+            raise UUDecodeError('Truncated input file')
     finally:
         for f in opened_files:
             f.close()
 
-def test():
-    """uuencode/uudecode main program"""
 
-    import optparse
-    parser = optparse.OptionParser(usage='usage: %prog [-d] [-t] [input [output]]')
-    parser.add_option('-d', '--decode', dest='decode', help='Decode (instead of encode)?', default=False, action='store_true')
-    parser.add_option('-t', '--text', dest='text', help='data is text, encoded format unix-compatible text?', default=False, action='store_true')
-
-    (options, args) = parser.parse_args()
-    if len(args) > 2:
-        parser.error('incorrect number of arguments')
-        sys.exit(1)
-
-    # Use the binary streams underlying stdin/stdout
-    input = sys.stdin.buffer
-    output = sys.stdout.buffer
-    if len(args) > 0:
-        input = args[0]
-    if len(args) > 1:
-        output = args[1]
-
-    if options.decode:
-        if options.text:
-            if isinstance(output, str):
-                output = open(output, 'wb')
-            else:
-                print(sys.argv[0], ': cannot do -t to stdout')
-                sys.exit(1)
-        decode(input, output)
-    else:
-        if options.text:
-            if isinstance(input, str):
-                input = open(input, 'rb')
-            else:
-                print(sys.argv[0], ': cannot do -t from stdin')
-                sys.exit(1)
-        encode(input, output)
-
-if __name__ == '__main__':
-    test()
 """
 End uu source code.
 """
@@ -790,7 +742,7 @@ decode_string_funcs["Base32"] = base64.b32decode
 decode_string_funcs["Base16"] = base64.b16decode
 decode_string_funcs["Ascii85"] = base64.a85decode
 decode_string_funcs["Base85"] = base64.b85decode
-decode_string_funcs["Uuencoding"] = wrap_uu(uu.decode)
+decode_string_funcs["Uuencoding"] = wrap_uu(uudecode)
 decode_string_funcs["BinHex"] = wrap_binhex(hexbin)
 decode_string_funcs["ROT13"] = wrap_rot13(codecs.decode)
 decode_string_funcs["MIME quoted-printable"] = quopri.decodestring
@@ -803,7 +755,7 @@ encode_string_funcs["Base32"] = base64.b32encode
 encode_string_funcs["Base16"] = base64.b16encode
 encode_string_funcs["Ascii85"] = base64.a85encode
 encode_string_funcs["Base85"] = base64.b85encode
-encode_string_funcs["Uuencoding"] = wrap_uu(uu.encode)
+encode_string_funcs["Uuencoding"] = wrap_uu(uuencode)
 encode_string_funcs["BinHex"] = wrap_binhex(binhex)
 encode_string_funcs["ROT13"] = wrap_rot13(codecs.encode)
 encode_string_funcs["MIME quoted-printable"] = quopri.encodestring
@@ -825,7 +777,7 @@ def decode_bytes(unknown_bytes, func, encoding):
         pass
     except BinHexError:
         pass
-    except uu.Error:
+    except UUDecodeError:
         pass
     except ValueError:
         pass
